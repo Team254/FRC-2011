@@ -1,0 +1,59 @@
+main.cpp creates a SimpleRobot
+The robot then creates a CSVReader for reading the CSV file,
+a RobotState for storing what the robot is supposed to be doing,
+for getting the sensor values, setting the outputs, and helper
+functions for writing auto modes quickly without knowing the details,
+a ControlBoard for reading the joysticks and talking to the
+control loops, and a ControlLoops which forks a notifier and
+runs all the control loops at m_robot->dt.  Anything which modifies
+the RobotState must have the robot state lock, or corruption might occur.
+
+The Reset functions are called on the robot state and control loops
+when the bot is initialized, and goes from disabled to enabled.
+The CSV file is re-read then as well.
+
+**** Autonomous Mode commands ****
+Here are the valid autonomous mode commands.
+Ones not listed here but in the RobotState can be called,
+but must be done with the robot lock accquired.  Be careful
+to not forget to release the lock, or the robot will lock up.
+Be careful in auto mode, since the auto mode thread will get killed
+when auto mode ends.  If the robot lock is held, the thread won't be
+killed, which will be problematic.
+
+// Pull a value out of the CSV file
+m_csvReader->GetValue("DISTANCE_TO_WALL_FEET");
+// Pull out a value, but if it isn't there, return the default.
+m_csvReader->GetValueWithDefault("DISTANCE_TO_WALL_FEET", 1.0);
+
+// General conversion functions
+FeetToMeters
+DegreesToRadians
+InchesToMeters
+and so on
+
+m_robot->driveForwardsFeet(double feet);
+// Wait until there are only feet feet left before the bot reaches the goal.
+m_robot->turnAngleDegrees(double turnAngleinDegrees);
+m_robot->waitForDriveFeetLeft(double feet);
+// For slow driving.
+m_robot->driveForwardsFeetAtVelocity(double distance, double velocity_in_fps);
+m_robot->waitForDrive();
+
+// Elevator routines.
+// The preset heights can be found in the csv file.
+m_robot->elevatorHeight(double heightInMeters);
+m_robot->waitForElevator();
+	
+// Arm routines.
+m_robot->armAngleDegrees(double degrees);
+m_robot->waitForArm();
+	
+// Claw routines.
+m_robot->openClaw();
+m_robot->closeClaw();
+m_robot->ignoreTube();
+m_robot->waitForTube();
+m_robot->grabTube();
+m_robot->ejectTube();
+bool m_robot->hasTube();
