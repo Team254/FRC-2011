@@ -1,0 +1,11 @@
+The following people have contributed significantly to this project:
+
+Eric Bakan: Lead developer, architect
+Austin Schuh: Technical mentor, author of SSC and Matlab scripts
+Dmitry Solomonov: Technical mentor, developed first version of codebase
+Eric Caldwell: Elevator and arm components, driver station display, debugging and porting
+Bhargava Manja: PID tuning, driver station display
+Derek Leung: Documentation
+Parker Schuh: Ruby script
+
+If you feel you or anyone else has been forgotten, contact Eric Bakan.

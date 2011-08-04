@@ -57,3 +57,7 @@ m_robot->waitForTube();
 m_robot->grabTube();
 m_robot->ejectTube();
 bool m_robot->hasTube();
+
+This software is released under the GPL "as-is" without any warranty.
+Copyright (C) 2011 by Team 254.
+
