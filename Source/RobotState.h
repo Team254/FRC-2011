@@ -1,11 +1,3 @@
-/**
- * Abstraction layer over a robot.
- * Stores inputted data from the ControlBoard
- * and provides methods for the Control Loops
- * for getting sensor input and setting
- * output values.
- **/
-
 #include "WPILib.h"
 #include "semLib.h"
 
@@ -14,6 +6,13 @@
 
 class CSVReader;
 
+/**
+ * Abstraction layer over a robot.
+ * Stores inputted data from the ControlBoard
+ * and provides methods for the Control Loops
+ * for getting sensor input and setting
+ * output values.
+ **/
 class RobotState {
 public:
 	/**

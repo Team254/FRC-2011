@@ -1,10 +1,3 @@
-/**
- * Interface for the Control Board
- * Sets desired inputs into the Robot
- * State to be handled by the Control
- * Loops.
- **/
-
 #ifndef CONTROL_BOARD_H
 #define CONTROL_BOARD_H
 
@@ -13,6 +6,12 @@
 class RobotState;
 class CSVReader;
 
+/**
+ * Interface for the Control Board
+ * Sets desired inputs into the Robot
+ * State to be handled by the Control
+ * Loops.
+ **/
 class ControlBoard {
 	
 public:
