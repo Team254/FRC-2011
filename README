@@ -1,3 +1,40 @@
+Enclosed is the Team 254 2011 FRC Codebase. This code is released
+under the BSD 2-Clause License. A copy of this license is included
+in the COPYING file.
+
+Most of the functions and classes are documented or otherwise
+simple and self-explanatory. The logic inside, however, has often
+become quite convoluted (especially as the season progressed and
+new features were incorporated). This is our major concern with
+the system but we will be working on better documentation in the
+future.
+
+CONTENTS:
+AUTHORS lists the main contributors to this codebase
+
+COPYING contains a copy of the BSD License
+
+main.cpp includes our SimpleRobot-derived class, including logic for
+autonomous mode and interfacing with the control board in disbaled
+and teleoperated modes
+
+matlab/ contains the code for our full state feedback control system.
+matrix.c and matrix.h are a C matrix library developed by Parker Schuh;
+it was chosen because we needed a library quickly and it was on hand.
+In a future version we would write our own C++-style library (with
+nice objects and methods and operators) for better code readability.
+
+scripts/ contains a short script to automate the uploading of our
+constants CSV to the robot. The copying script was written by Eric
+Bakan, the Ruby watcher was developed by Parker Schuh.
+
+RobotConfig.csv contains all the constants used by the system - PID
+values, preset heights, autonomous mode distances and angles, etc.
+
+Source/ contains the core source code used on the robot. Functionality
+is described below
+
+FUNCTIONALITY:
 main.cpp creates a SimpleRobot
 The robot then creates a CSVReader for reading the CSV file,
 a RobotState for storing what the robot is supposed to be doing,
@@ -12,52 +49,50 @@ The Reset functions are called on the robot state and control loops
 when the bot is initialized, and goes from disabled to enabled.
 The CSV file is re-read then as well.
 
-**** Autonomous Mode commands ****
-Here are the valid autonomous mode commands.
-Ones not listed here but in the RobotState can be called,
-but must be done with the robot lock accquired.  Be careful
-to not forget to release the lock, or the robot will lock up.
-Be careful in auto mode, since the auto mode thread will get killed
-when auto mode ends.  If the robot lock is held, the thread won't be
-killed, which will be problematic.
+CommonIncludes.hpp includes many utility functions (converting units,
+etc.)
 
-// Pull a value out of the CSV file
-m_csvReader->GetValue("DISTANCE_TO_WALL_FEET");
-// Pull out a value, but if it isn't there, return the default.
-m_csvReader->GetValueWithDefault("DISTANCE_TO_WALL_FEET", 1.0);
+AccelFilterBase, ContinuousAccelFilter, and
+DiscreteAccelFilter are all acceleration profile generators used
+in autonomous drive control. The discrete profiler was generated
+first because it was simpler but the continuous profile is far
+superior.
 
-// General conversion functions
-FeetToMeters
-DegreesToRadians
-InchesToMeters
-and so on
+The CSVReader is used to read constants from a file for use in the
+program. This enables a team to not have to redeploy code to change
+constants when tuning - simply modify a file on the robot and reset
+the CSVReader (often when enabling/disabling the robot)
 
-m_robot->driveForwardsFeet(double feet);
-// Wait until there are only feet feet left before the bot reaches the goal.
-m_robot->turnAngleDegrees(double turnAngleinDegrees);
-m_robot->waitForDriveFeetLeft(double feet);
-// For slow driving.
-m_robot->driveForwardsFeetAtVelocity(double distance, double velocity_in_fps);
-m_robot->waitForDrive();
+ControlBoard reads values from the control board, handles much of
+its logic (semi-autonomous actions, running filters on joystick inputs,
+etc. In its update loop ControlBoard updates RobotState with all its
+values - control loop targets, statuses of toggle switches, etc.
 
-// Elevator routines.
-// The preset heights can be found in the csv file.
-m_robot->elevatorHeight(double heightInMeters);
-m_robot->waitForElevator();
-	
-// Arm routines.
-m_robot->armAngleDegrees(double degrees);
-m_robot->waitForArm();
-	
-// Claw routines.
-m_robot->openClaw();
-m_robot->closeClaw();
-m_robot->ignoreTube();
-m_robot->waitForTube();
-m_robot->grabTube();
-m_robot->ejectTube();
-bool m_robot->hasTube();
+ControlLoops/ contains control loops for each of the major robot systems.
+The arm and elevator run on PID loops with target positions/angles,
+minibot and rollers are quasi-FSMs and merely control logic, and
+the drive control is the most complex, handling both teleoperated
+driver control and autonomous full state feedback control.
 
-This software is released under the GPL "as-is" without any warranty.
-Copyright (C) 2011 by Team 254.
+ControlLoops creates a new thread to update each of the control loops
+every 10ms.
+
+RobotState is the core of the system - it is the data structure that
+is passed around between the main robot, the control board, and the
+control loops. Since the system is multithreaded, it is of utmost
+importance to make sure each system acquires the robot's mutex before
+it performs operations. In addition to holding data, RobotState also
+provides some useful threadsafe and non-threadsafe functions to
+interface with its data members. There is limited distinction between
+threadsafe and non-threadsafe functions at the moment, but this is
+a point of improvement for us next year.
+
+Together this forms a system where main.cpp controls whether the program
+will run autonomously or accept user input. If it needs to run autonomously,
+a new autonomous thread is spawned. Otherwise if there is user input,
+the system tells ControlBoard to update the RobotState based on the current
+inputs. At the same time, ControlLoops is in its independent thread updating
+the robot's outputs, whether in autonomous or teleop mode.
+
+If you have any questions, contact Eric Bakan at eric@ebakan.com
 

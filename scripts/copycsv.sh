@@ -1,4 +1,7 @@
 #!/bin/bash
+
+#Written by Eric Bakan
+
 OLD=../RobotConfig.csv
 IP=10.2.52.2
 #IP=10.2.54.4
